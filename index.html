@@ -96,7 +96,6 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<!-- UPDATED: Added background gradient for desktop aesthetics, kept h-[100dvh] for mobile -->
 <body class="h-[100dvh] min-h-[100dvh] flex flex-col items-center justify-center relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800">
 
     <!-- NEW: Loading View -->
@@ -119,7 +118,6 @@
     </div>
 
     <!-- App View -->
-    <!-- UPDATED: Added border and shadow for desktop "app-like" feel, ensuring full height -->
     <div id="app-view" class="w-full h-[100dvh] md:h-[90vh] md:max-h-[850px] md:rounded-3xl flex flex-col hidden max-w-lg mx-auto bg-slate-900 shadow-2xl relative border-0 md:border md:border-slate-800 overflow-hidden">
         
         <!-- Header -->
@@ -127,7 +125,11 @@
             <h1 class="text-xl font-bold text-teal-400 flex items-center gap-2">
                 <i class="ph-fill ph-brain"></i> Taglich
             </h1>
-            <div class="flex gap-4">
+            <div class="flex gap-4 items-center">
+                <!-- UPDATED: Notification Permission Button -->
+                <button id="enable-notif-btn" class="text-rose-400 hover:text-rose-300 transition-colors hidden" title="Enable Notifications" onclick="requestNotificationPermission()">
+                    <i class="ph-bold ph-bell-slash text-xl animate-pulse"></i>
+                </button>
                 <button id="logout-btn" class="text-slate-500 hover:text-slate-300 text-sm">Sign Out</button>
             </div>
         </header>
@@ -229,7 +231,6 @@
                 </div>
 
                 <!-- Floating Add Button -->
-                <!-- UPDATED: Increased bottom margin to bottom-24 to fix cut-off issue on mobile -->
                 <button onclick="openTaskModal()" class="absolute bottom-24 right-6 w-14 h-14 bg-teal-500 hover:bg-teal-400 text-white rounded-full shadow-lg shadow-teal-900/50 flex items-center justify-center transition-transform hover:scale-105 z-50">
                     <i class="ph-bold ph-plus text-2xl"></i>
                 </button>
@@ -238,7 +239,6 @@
     </div>
 
     <!-- MODAL: ADD/EDIT TASK -->
-    <!-- UPDATED: z-[60] to sit above everything else -->
     <div id="task-modal" class="fixed inset-0 modal-backdrop hidden z-[60] flex items-end sm:items-center justify-center p-4">
         <div class="bg-slate-900 w-full max-w-md rounded-2xl border border-slate-700 shadow-2xl overflow-hidden transform transition-all">
             <div class="p-6">
@@ -291,7 +291,6 @@
     </div>
 
     <!-- MODAL: MANAGE MOTIVATIONS -->
-    <!-- UPDATED: z-[60] to sit above everything else -->
     <div id="lines-modal" class="fixed inset-0 modal-backdrop hidden z-[60] flex items-center justify-center p-4">
         <div class="bg-slate-900 w-full max-w-md rounded-2xl border border-slate-700 shadow-2xl h-[80vh] flex flex-col">
             <div class="p-6 border-b border-slate-800 flex justify-between items-center">
@@ -357,6 +356,7 @@
         let currentQuote = "";
         let progressInterval = null;
         let notificationInterval = null;
+        let audioContext = null; // Global Audio Context
 
         // --- DOM ELEMENTS ---
         const views = { 
@@ -369,6 +369,22 @@
             tabFocus: document.getElementById('tab-focus-btn'), 
             tabManage: document.getElementById('tab-manage-btn') 
         };
+
+        // --- AUDIO UNLOCKER ---
+        // Browsers block audio until a user interacts with the page.
+        // We capture the first click anywhere to initialize/resume audio.
+        function unlockAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioContext.state === 'suspended') {
+                audioContext.resume().then(() => {
+                    console.log("Audio Context Resumed");
+                });
+            }
+        }
+        document.addEventListener('click', unlockAudio);
+        document.addEventListener('touchstart', unlockAudio);
 
         // --- AUTHENTICATION ---
         const initAuth = async () => {
@@ -395,6 +411,7 @@
                 views.app.classList.add('flex'); // Restore flex display
                 initializeData(user.uid);
                 startNotificationLoop();
+                checkNotificationPermission();
             } else {
                 views.auth.classList.remove('hidden');
                 views.app.classList.add('hidden');
@@ -806,12 +823,38 @@
         window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
 
         // --- NOTIFICATIONS & SFX ---
-        // Web Audio API for gentle synth sound (No external files)
-        function playGentleNotification(freq = 440, type = 'sine') {
-            const AudioContext = window.AudioContext || window.webkitAudioContext;
-            if (!AudioContext) return;
+        
+        // Permission Handling
+        window.checkNotificationPermission = () => {
+            if (!("Notification" in window)) return;
+            const btn = document.getElementById('enable-notif-btn');
             
-            const ctx = new AudioContext();
+            if (Notification.permission === 'granted') {
+                btn.classList.add('hidden');
+            } else {
+                btn.classList.remove('hidden');
+            }
+        }
+
+        window.requestNotificationPermission = async () => {
+            if (!("Notification" in window)) return;
+            const permission = await Notification.requestPermission();
+            checkNotificationPermission();
+            if (permission === 'granted') {
+                playGentleNotification(660, 'sine'); // Test sound
+            }
+        }
+
+        // UPDATED: Re-use the global audio context to prevent crashing/limits
+        function playGentleNotification(freq = 440, type = 'sine') {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+            
+            const ctx = audioContext;
             const osc = ctx.createOscillator();
             const gain = ctx.createGain();
             
@@ -835,10 +878,8 @@
         function startNotificationLoop() {
             if (!("Notification" in window)) return;
             
-            // Request permission on first load if not denied
-            if (Notification.permission !== "granted" && Notification.permission !== "denied") {
-                Notification.requestPermission();
-            }
+            // Initial check
+            checkNotificationPermission();
 
             if (notificationInterval) clearInterval(notificationInterval);
             
