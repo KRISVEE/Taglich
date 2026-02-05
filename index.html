@@ -96,17 +96,17 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<!-- UPDATED: Use h-[100dvh] to fix mobile browser bottom bar cropping -->
-<body class="h-[100dvh] min-h-[100dvh] flex flex-col items-center justify-center relative overflow-hidden">
+<!-- UPDATED: Added background gradient for desktop aesthetics, kept h-[100dvh] for mobile -->
+<body class="h-[100dvh] min-h-[100dvh] flex flex-col items-center justify-center relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800">
 
     <!-- NEW: Loading View -->
-    <div id="loading-view" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-900">
+    <div id="loading-view" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-slate-900">
         <i class="ph-duotone ph-brain text-6xl text-teal-400 animate-pulse mb-4"></i>
         <p class="text-slate-400 text-sm font-medium tracking-wider">LOADING TAGLICH...</p>
     </div>
 
     <!-- Auth View -->
-    <div id="auth-view" class="flex flex-col items-center justify-center w-full max-w-md p-6 text-center hidden">
+    <div id="auth-view" class="flex flex-col items-center justify-center w-full max-w-md p-6 text-center hidden z-10">
         <div class="mb-8 p-4 bg-slate-800 rounded-2xl shadow-xl">
             <i class="ph ph-brain text-6xl text-teal-400"></i>
         </div>
@@ -119,11 +119,11 @@
     </div>
 
     <!-- App View -->
-    <!-- UPDATED: Use h-[100dvh] to ensure full height on mobile -->
-    <div id="app-view" class="w-full h-[100dvh] flex flex-col hidden max-w-lg mx-auto bg-slate-900 shadow-2xl relative">
+    <!-- UPDATED: Added border and shadow for desktop "app-like" feel, ensuring full height -->
+    <div id="app-view" class="w-full h-[100dvh] md:h-[90vh] md:max-h-[850px] md:rounded-3xl flex flex-col hidden max-w-lg mx-auto bg-slate-900 shadow-2xl relative border-0 md:border md:border-slate-800 overflow-hidden">
         
         <!-- Header -->
-        <header class="p-6 flex justify-between items-center bg-slate-900/80 backdrop-blur-md z-10 sticky top-0">
+        <header class="p-6 flex justify-between items-center bg-slate-900/90 backdrop-blur-md z-10 sticky top-0 border-b border-slate-800/50">
             <h1 class="text-xl font-bold text-teal-400 flex items-center gap-2">
                 <i class="ph-fill ph-brain"></i> Taglich
             </h1>
@@ -133,7 +133,7 @@
         </header>
 
         <!-- Tabs Navigation -->
-        <div class="flex justify-center gap-2 px-6 pb-2">
+        <div class="flex justify-center gap-2 px-6 py-4 bg-slate-900">
             <button id="tab-focus-btn" class="flex-1 py-2 rounded-lg font-medium bg-teal-400/10 text-teal-400 border border-teal-400/20 transition-colors" onclick="switchTab('focus')">
                 Focus
             </button>
@@ -148,7 +148,7 @@
             <!-- TAB 1: FOCUS MODE -->
             <div id="tab-focus" class="h-full w-full flex flex-col p-6 fade-in overflow-y-auto no-scrollbar">
                 
-                <!-- Empty State (UPDATED) -->
+                <!-- Empty State -->
                 <div id="focus-empty" class="hidden h-full flex flex-col items-center justify-center text-center">
                     <div class="w-24 h-24 bg-slate-800 rounded-full flex items-center justify-center mb-6">
                         <i class="ph-duotone ph-clipboard-text text-4xl text-teal-400"></i>
@@ -214,7 +214,7 @@
             </div>
 
             <!-- TAB 2: MANAGE MODE -->
-            <div id="tab-manage" class="hidden h-full w-full overflow-y-auto p-6 pb-24 fade-in">
+            <div id="tab-manage" class="hidden h-full w-full overflow-y-auto p-6 pb-32 fade-in">
                 
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-xl font-semibold">Your Tasks</h2>
@@ -228,8 +228,8 @@
                     <!-- Tasks injected via JS -->
                 </div>
 
-                <!-- Floating Add Button (UPDATED) -->
-                <!-- Moved higher (bottom-10) and ensured high z-index to avoid mobile cutoff -->
+                <!-- Floating Add Button -->
+                <!-- UPDATED: High Z-Index ensures clickable, bottom spacing prevents cut-off -->
                 <button onclick="openTaskModal()" class="absolute bottom-10 right-6 w-14 h-14 bg-teal-500 hover:bg-teal-400 text-white rounded-full shadow-lg shadow-teal-900/50 flex items-center justify-center transition-transform hover:scale-105 z-50">
                     <i class="ph-bold ph-plus text-2xl"></i>
                 </button>
@@ -238,7 +238,8 @@
     </div>
 
     <!-- MODAL: ADD/EDIT TASK -->
-    <div id="task-modal" class="fixed inset-0 modal-backdrop hidden z-50 flex items-end sm:items-center justify-center p-4">
+    <!-- UPDATED: z-[60] to sit above everything else -->
+    <div id="task-modal" class="fixed inset-0 modal-backdrop hidden z-[60] flex items-end sm:items-center justify-center p-4">
         <div class="bg-slate-900 w-full max-w-md rounded-2xl border border-slate-700 shadow-2xl overflow-hidden transform transition-all">
             <div class="p-6">
                 <h3 id="modal-title" class="text-xl font-bold mb-6 flex items-center gap-2">
@@ -290,7 +291,8 @@
     </div>
 
     <!-- MODAL: MANAGE MOTIVATIONS -->
-    <div id="lines-modal" class="fixed inset-0 modal-backdrop hidden z-50 flex items-center justify-center p-4">
+    <!-- UPDATED: z-[60] to sit above everything else -->
+    <div id="lines-modal" class="fixed inset-0 modal-backdrop hidden z-[60] flex items-center justify-center p-4">
         <div class="bg-slate-900 w-full max-w-md rounded-2xl border border-slate-700 shadow-2xl h-[80vh] flex flex-col">
             <div class="p-6 border-b border-slate-800 flex justify-between items-center">
                 <h3 class="text-xl font-bold">Motivational Lines</h3>
@@ -546,50 +548,54 @@
             const docRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'tasks', currentFocusTask.id);
             const task = tasks.find(t => t.id === currentFocusTask.id);
 
-            if (action === 'start') {
-                await updateDoc(docRef, {
-                    status: 'ongoing',
-                    startedAt: serverTimestamp()
-                });
-            } else if (action === 'complete') {
-                const repeat = task.repeatType || 'none';
-
-                if (repeat === 'none') {
-                    // Standard completion
+            try {
+                if (action === 'start') {
                     await updateDoc(docRef, {
-                        status: 'completed',
-                        completedAt: serverTimestamp()
+                        status: 'ongoing',
+                        startedAt: serverTimestamp()
                     });
-                } else {
-                    // RESCHEDULE LOGIC
-                    const oldDate = new Date(task.scheduledTime);
-                    let newDate = new Date(oldDate);
+                } else if (action === 'complete') {
+                    const repeat = task.repeatType || 'none';
 
-                    if (repeat === 'daily') {
-                        newDate.setDate(oldDate.getDate() + 1);
-                    } else if (repeat === 'weekly') {
-                        newDate.setDate(oldDate.getDate() + 7);
+                    if (repeat === 'none') {
+                        // Standard completion
+                        await updateDoc(docRef, {
+                            status: 'completed',
+                            completedAt: serverTimestamp()
+                        });
+                    } else {
+                        // RESCHEDULE LOGIC
+                        const oldDate = new Date(task.scheduledTime);
+                        let newDate = new Date(oldDate);
+
+                        if (repeat === 'daily') {
+                            newDate.setDate(oldDate.getDate() + 1);
+                        } else if (repeat === 'weekly') {
+                            newDate.setDate(oldDate.getDate() + 7);
+                        }
+
+                        // Format back to string (YYYY-MM-DDTHH:MM)
+                        const pad = n => n < 10 ? '0'+n : n;
+                        const localIso = newDate.getFullYear() + '-' +
+                            pad(newDate.getMonth() + 1) + '-' +
+                            pad(newDate.getDate()) + 'T' +
+                            pad(newDate.getHours()) + ':' +
+                            pad(newDate.getMinutes());
+
+                        await updateDoc(docRef, {
+                            status: 'upcoming',
+                            scheduledTime: localIso,
+                            startedAt: null, // Clear these fields
+                            completedAt: null
+                        });
                     }
 
-                    // Format back to string (YYYY-MM-DDTHH:MM)
-                    // We need local components to avoid UTC shift if we used toISOString()
-                    const pad = n => n < 10 ? '0'+n : n;
-                    const localIso = newDate.getFullYear() + '-' +
-                        pad(newDate.getMonth() + 1) + '-' +
-                        pad(newDate.getDate()) + 'T' +
-                        pad(newDate.getHours()) + ':' +
-                        pad(newDate.getMinutes());
-
-                    await updateDoc(docRef, {
-                        status: 'upcoming',
-                        scheduledTime: localIso,
-                        startedAt: null, // Clear these fields
-                        completedAt: null
-                    });
+                    // Confetti or sound
+                    playGentleNotification(660, 'sine'); // Success chime
                 }
-
-                // Confetti or sound
-                playGentleNotification(660, 'sine'); // Success chime
+            } catch (err) {
+                console.error("Action Error:", err);
+                alert("Error updating task. Check your connection or permissions.");
             }
         };
 
@@ -675,7 +681,10 @@
 
         window.saveTask = async (e) => {
             e.preventDefault();
-            if (!currentUser) return;
+            if (!currentUser) {
+                alert("You must be signed in to add tasks.");
+                return;
+            }
 
             const id = document.getElementById('task-id').value;
             const data = {
@@ -688,19 +697,28 @@
 
             const collectionRef = collection(db, 'artifacts', appId, 'users', currentUser.uid, 'tasks');
 
-            if (id) {
-                await updateDoc(doc(collectionRef, id), data);
-            } else {
-                data.status = 'upcoming';
-                await addDoc(collectionRef, data);
+            try {
+                if (id) {
+                    await updateDoc(doc(collectionRef, id), data);
+                } else {
+                    data.status = 'upcoming';
+                    await addDoc(collectionRef, data);
+                }
+                closeModal('task-modal');
+            } catch (err) {
+                console.error("Save Error:", err);
+                alert("Failed to save task. Error: " + err.message + "\n\nTip: Check Firebase Console > Firestore Database > Rules.");
             }
-            
-            closeModal('task-modal');
         };
 
         window.deleteTask = async (id) => {
             if(confirm("Delete this task?")) {
-                await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'tasks', id));
+                try {
+                    await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'tasks', id));
+                } catch (err) {
+                    console.error("Delete Error:", err);
+                    alert("Failed to delete. Error: " + err.message);
+                }
             }
         };
 
@@ -727,14 +745,26 @@
             e.preventDefault();
             const input = document.getElementById('new-line-input');
             const text = input.value.trim();
-            if (!text || !currentUser) return;
+            if (!text || !currentUser) {
+                if(!currentUser) alert("Please sign in.");
+                return;
+            }
             
-            await addDoc(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'motivationalLines'), { text });
-            input.value = '';
+            try {
+                await addDoc(collection(db, 'artifacts', appId, 'users', currentUser.uid, 'motivationalLines'), { text });
+                input.value = '';
+            } catch (err) {
+                console.error("Add Line Error:", err);
+                alert("Failed to add line. Error: " + err.message);
+            }
         };
 
         window.deleteLine = async (id) => {
-            await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'motivationalLines', id));
+            try {
+                await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'motivationalLines', id));
+            } catch (err) {
+                alert("Failed to delete line.");
+            }
         };
 
         // --- UTILS ---
