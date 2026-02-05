@@ -229,8 +229,8 @@
                 </div>
 
                 <!-- Floating Add Button -->
-                <!-- UPDATED: High Z-Index ensures clickable, bottom spacing prevents cut-off -->
-                <button onclick="openTaskModal()" class="absolute bottom-10 right-6 w-14 h-14 bg-teal-500 hover:bg-teal-400 text-white rounded-full shadow-lg shadow-teal-900/50 flex items-center justify-center transition-transform hover:scale-105 z-50">
+                <!-- UPDATED: Increased bottom margin to bottom-24 to fix cut-off issue on mobile -->
+                <button onclick="openTaskModal()" class="absolute bottom-24 right-6 w-14 h-14 bg-teal-500 hover:bg-teal-400 text-white rounded-full shadow-lg shadow-teal-900/50 flex items-center justify-center transition-transform hover:scale-105 z-50">
                     <i class="ph-bold ph-plus text-2xl"></i>
                 </button>
             </div>
@@ -595,7 +595,11 @@
                 }
             } catch (err) {
                 console.error("Action Error:", err);
-                alert("Error updating task. Check your connection or permissions.");
+                if (err.code === 'permission-denied') {
+                    alert("PERMISSION ERROR:\n\nYou need to update your Firestore Database Rules in the Firebase Console.\n\nSet them to allow read/write for authenticated users.");
+                } else {
+                    alert("Failed to update task. Error: " + err.message);
+                }
             }
         };
 
@@ -707,7 +711,11 @@
                 closeModal('task-modal');
             } catch (err) {
                 console.error("Save Error:", err);
-                alert("Failed to save task. Error: " + err.message + "\n\nTip: Check Firebase Console > Firestore Database > Rules.");
+                if (err.code === 'permission-denied') {
+                    alert("PERMISSION ERROR:\n\nYou need to update your Firestore Database Rules in the Firebase Console.\n\nSet them to allow read/write for authenticated users.");
+                } else {
+                    alert("Failed to save task. Error: " + err.message);
+                }
             }
         };
 
@@ -717,7 +725,11 @@
                     await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'tasks', id));
                 } catch (err) {
                     console.error("Delete Error:", err);
-                    alert("Failed to delete. Error: " + err.message);
+                    if (err.code === 'permission-denied') {
+                         alert("PERMISSION ERROR:\n\nYou need to update your Firestore Database Rules in the Firebase Console.\n\nSet them to allow read/write for authenticated users.");
+                    } else {
+                        alert("Failed to delete. Error: " + err.message);
+                    }
                 }
             }
         };
@@ -755,7 +767,11 @@
                 input.value = '';
             } catch (err) {
                 console.error("Add Line Error:", err);
-                alert("Failed to add line. Error: " + err.message);
+                if (err.code === 'permission-denied') {
+                    alert("PERMISSION ERROR:\n\nYou need to update your Firestore Database Rules in the Firebase Console.\n\nSet them to allow read/write for authenticated users.");
+                } else {
+                    alert("Failed to add line. Error: " + err.message);
+                }
             }
         };
 
@@ -763,7 +779,11 @@
             try {
                 await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'motivationalLines', id));
             } catch (err) {
-                alert("Failed to delete line.");
+                if (err.code === 'permission-denied') {
+                    alert("PERMISSION ERROR: Check Firestore Rules.");
+                } else {
+                    alert("Failed to delete line.");
+                }
             }
         };
 
