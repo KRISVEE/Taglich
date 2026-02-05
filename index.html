@@ -96,7 +96,14 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-center relative overflow-hidden">
+<!-- UPDATED: Use h-[100dvh] to fix mobile browser bottom bar cropping -->
+<body class="h-[100dvh] min-h-[100dvh] flex flex-col items-center justify-center relative overflow-hidden">
+
+    <!-- NEW: Loading View -->
+    <div id="loading-view" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-900">
+        <i class="ph-duotone ph-brain text-6xl text-teal-400 animate-pulse mb-4"></i>
+        <p class="text-slate-400 text-sm font-medium tracking-wider">LOADING TAGLICH...</p>
+    </div>
 
     <!-- Auth View -->
     <div id="auth-view" class="flex flex-col items-center justify-center w-full max-w-md p-6 text-center hidden">
@@ -112,7 +119,8 @@
     </div>
 
     <!-- App View -->
-    <div id="app-view" class="w-full h-screen flex flex-col hidden max-w-lg mx-auto bg-slate-900 shadow-2xl relative">
+    <!-- UPDATED: Use h-[100dvh] to ensure full height on mobile -->
+    <div id="app-view" class="w-full h-[100dvh] flex flex-col hidden max-w-lg mx-auto bg-slate-900 shadow-2xl relative">
         
         <!-- Header -->
         <header class="p-6 flex justify-between items-center bg-slate-900/80 backdrop-blur-md z-10 sticky top-0">
@@ -140,13 +148,17 @@
             <!-- TAB 1: FOCUS MODE -->
             <div id="tab-focus" class="h-full w-full flex flex-col p-6 fade-in overflow-y-auto no-scrollbar">
                 
-                <!-- Empty State -->
+                <!-- Empty State (UPDATED) -->
                 <div id="focus-empty" class="hidden h-full flex flex-col items-center justify-center text-center">
                     <div class="w-24 h-24 bg-slate-800 rounded-full flex items-center justify-center mb-6">
-                        <i class="ph-duotone ph-coffee text-4xl text-emerald-400"></i>
+                        <i class="ph-duotone ph-clipboard-text text-4xl text-teal-400"></i>
                     </div>
-                    <h2 class="text-2xl font-semibold mb-2">All caught up</h2>
-                    <p class="text-slate-400 max-w-xs">Take a deep breath. You've cleared your schedule for now.</p>
+                    <h2 class="text-2xl font-semibold mb-2">No tasks yet</h2>
+                    <p class="text-slate-400 max-w-xs mb-8">Clear mind, clean slate. Add a task to get started.</p>
+                    
+                    <button onclick="openTaskModal()" class="btn-primary py-3 px-6 rounded-xl font-medium shadow-lg shadow-teal-900/20 flex items-center gap-2">
+                        <i class="ph-bold ph-plus"></i> Add Task
+                    </button>
                 </div>
 
                 <!-- Active Task State -->
@@ -216,8 +228,9 @@
                     <!-- Tasks injected via JS -->
                 </div>
 
-                <!-- Floating Add Button -->
-                <button onclick="openTaskModal()" class="absolute bottom-6 right-6 w-14 h-14 bg-teal-500 hover:bg-teal-400 text-white rounded-full shadow-lg shadow-teal-900/50 flex items-center justify-center transition-transform hover:scale-105 z-20">
+                <!-- Floating Add Button (UPDATED) -->
+                <!-- Moved higher (bottom-10) and ensured high z-index to avoid mobile cutoff -->
+                <button onclick="openTaskModal()" class="absolute bottom-10 right-6 w-14 h-14 bg-teal-500 hover:bg-teal-400 text-white rounded-full shadow-lg shadow-teal-900/50 flex items-center justify-center transition-transform hover:scale-105 z-50">
                     <i class="ph-bold ph-plus text-2xl"></i>
                 </button>
             </div>
@@ -344,7 +357,11 @@
         let notificationInterval = null;
 
         // --- DOM ELEMENTS ---
-        const views = { auth: document.getElementById('auth-view'), app: document.getElementById('app-view') };
+        const views = { 
+            auth: document.getElementById('auth-view'), 
+            app: document.getElementById('app-view'),
+            loading: document.getElementById('loading-view') 
+        };
         const tabs = { focus: document.getElementById('tab-focus'), manage: document.getElementById('tab-manage') };
         const btns = { 
             tabFocus: document.getElementById('tab-focus-btn'), 
@@ -366,6 +383,9 @@
         initAuth();
 
         onAuthStateChanged(auth, (user) => {
+            // Hide loading screen once we have a definitive auth state
+            views.loading.classList.add('hidden');
+
             currentUser = user;
             if (user) {
                 views.auth.classList.add('hidden');
